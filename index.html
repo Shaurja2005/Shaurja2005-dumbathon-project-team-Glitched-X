@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ragebait CAPTCHA Demo</title>
+    <link rel="stylesheet" href="src/styles/main.css" />
+  </head>
+  <body>
+    <svg width="0" height="0" style="position: absolute">
+      <symbol id="icon-face" viewBox="0 0 24 24">
+        <path
+          d="M7 3h3M14 3h3M7 21h3M14 21h3M3 7v3M3 14v3M21 7v3M21 14v3M9 9h.01M15 9h.01M9 15c1 .8 2 .8 3 .8s2 0 3-.8"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+          fill="none"
+        />
+      </symbol>
+      <symbol id="icon-check" viewBox="0 0 24 24">
+        <path
+          d="M5 13l4 4L19 7"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          fill="none"
+        />
+      </symbol>
+      <symbol id="icon-close" viewBox="0 0 24 24">
+        <path
+          d="M6 6l12 12M18 6L6 18"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          fill="none"
+        />
+      </symbol>
+      <symbol id="icon-send" viewBox="0 0 24 24">
+        <path
+          d="M3 11l18-8-8 18-2-8-8-2z"
+          stroke="currentColor"
+          stroke-width="1.6"
+          fill="none"
+          stroke-linejoin="round"
+        />
+      </symbol>
+      <symbol id="icon-nav" viewBox="0 0 24 24">
+        <path
+          d="M4 12h16M13 5l7 7-7 7"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          fill="none"
+        />
+      </symbol>
+      <symbol id="icon-cart" viewBox="0 0 24 24">
+        <path
+          d="M4 5h2l2.2 10.5h9.8l2-7.5H7.3M10 20a1 1 0 1 0 0 .01M17 20a1 1 0 1 0 0 .01"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          fill="none"
+        />
+      </symbol>
+      <symbol id="icon-save" viewBox="0 0 24 24">
+        <path
+          d="M5 4h11l3 3v13H5zM8 4v6h8V4M9 20h6"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          fill="none"
+        />
+      </symbol>
+      <symbol id="icon-refresh" viewBox="0 0 24 24">
+        <path
+          d="M20 11a8 8 0 1 0 2 5M20 11v-5m0 5h-5"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          fill="none"
+        />
+      </symbol>
+      <symbol id="icon-alert" viewBox="0 0 24 24">
+        <path
+          d="M12 3l9 16H3l9-16zm0 6v5m0 3h.01"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          fill="none"
+        />
+      </symbol>
+    </svg>
+
+    <main class="app-shell">
+      <section class="card">
+        <h1>Verification Console</h1>
+        <p class="subtext">
+          Complete face unlock, solve the custom challenge, then trigger
+          actions.
+        </p>
+
+        <div class="toolbar">
+          <button
+            id="unlockBtn"
+            class="icon-btn strong"
+            type="button"
+            title="Face Unlock"
+            aria-label="Face Unlock"
+          >
+            <svg aria-hidden="true"><use href="#icon-face"></use></svg>
+          </button>
+        </div>
+
+        <div class="action-row">
+          <button
+            class="icon-btn action-btn"
+            data-action="submit"
+            type="button"
+            title="Submit"
+            aria-label="Submit"
+          >
+            <svg aria-hidden="true"><use href="#icon-send"></use></svg>
+          </button>
+          <button
+            class="icon-btn action-btn"
+            data-action="navigate"
+            type="button"
+            title="Navigate"
+            aria-label="Navigate"
+          >
+            <svg aria-hidden="true"><use href="#icon-nav"></use></svg>
+          </button>
+          <button
+            class="icon-btn action-btn"
+            data-action="purchase"
+            type="button"
+            title="Purchase"
+            aria-label="Purchase"
+          >
+            <svg aria-hidden="true"><use href="#icon-cart"></use></svg>
+          </button>
+          <button
+            class="icon-btn action-btn"
+            data-action="save"
+            type="button"
+            title="Save"
+            aria-label="Save"
+          >
+            <svg aria-hidden="true"><use href="#icon-save"></use></svg>
+          </button>
+        </div>
+
+        <h2>Patient Vitals</h2>
+        <div class="vitals-grid">
+          <input id="patientName" type="text" placeholder="Name" />
+          <input id="patientAge" type="number" placeholder="Age" step="0.1" />
+          <input id="patientGender" type="text" placeholder="Gender" />
+          <input
+            id="patientWeight"
+            type="number"
+            placeholder="Weight_kg"
+            step="0.1"
+          />
+          <input
+            id="patientHeight"
+            type="number"
+            placeholder="Height_cm"
+            step="0.1"
+          />
+          <input
+            id="patientRadiation"
+            type="number"
+            placeholder="radiation_dose_mSv"
+            step="0.1"
+          />
+          <input
+            id="patientHours"
+            type="number"
+            placeholder="hours_since_exposure"
+            step="0.1"
+          />
+          <input id="patientDiagnosis" type="text" placeholder="diagnosis" />
+        </div>
+        <p class="tiny">
+          Use the submit icon to request backend prediction after CAPTCHA.
+        </p>
+        <div class="result-row">
+          <p id="survivorHash" class="status">Survivor_ID_Hashed: --</p>
+          <p id="calorieResult" class="status">caloric_need_24hr: --</p>
+        </div>
+        <p id="status" class="status">Waiting for face unlock.</p>
+      </section>
+    </main>
+
+    <div id="captchaModal" class="overlay hidden" aria-live="polite">
+      <section class="modal">
+        <h2>Security Challenge</h2>
+        <p id="captchaPrompt" class="subtext"></p>
+        <p id="captchaHint" class="tiny"></p>
+        <div
+          id="captchaGrid"
+          class="captcha-grid"
+          role="group"
+          aria-label="Ragebait Captcha Grid"
+        ></div>
+        <div class="toolbar">
+          <button
+            id="captchaReset"
+            class="icon-btn"
+            type="button"
+            title="Reset Puzzle"
+            aria-label="Reset Puzzle"
+          >
+            <svg aria-hidden="true"><use href="#icon-refresh"></use></svg>
+          </button>
+          <button
+            id="captchaVerify"
+            class="icon-btn strong"
+            type="button"
+            title="Verify"
+            aria-label="Verify"
+          >
+            <svg aria-hidden="true"><use href="#icon-check"></use></svg>
+          </button>
+        </div>
+        <p id="captchaStatus" class="status"></p>
+      </section>
+    </div>
+
+    <div id="interruptModal" class="overlay hidden" aria-live="assertive">
+      <section class="modal warn">
+        <div class="interrupt-head">
+          <svg class="alert-icon" aria-hidden="true">
+            <use href="#icon-alert"></use>
+          </svg>
+          <h2 id="interruptTitle">System Message</h2>
+        </div>
+        <p id="interruptBody" class="subtext"></p>
+        <div class="toolbar">
+          <button
+            id="dismissInterrupt"
+            class="icon-btn strong"
+            type="button"
+            title="Dismiss"
+            aria-label="Dismiss"
+          >
+            <svg aria-hidden="true"><use href="#icon-close"></use></svg>
+          </button>
+        </div>
+      </section>
+    </div>
+
+    <script type="module" src="src/main.js"></script>
+  </body>
+</html>
