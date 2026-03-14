@@ -3,12 +3,23 @@ const FACE_MATCH_THRESHOLD = 0.42;
 const REQUIRED_CONSECUTIVE_MATCHES = 5;
 
 export function createFaceLockFeature(elements, options) {
-  const { onUnlock, backendBaseUrl } = options;
+  const { onUnlock, backendBaseUrl, onAuthFailure } = options;
   let unlocked = false;
   let pollingTimer = null;
   let consecutiveMatches = 0;
   let isCheckingFrame = false;
   let verificationFinalized = false;
+  let lastFailureSoundAt = 0;
+
+  function triggerFailureSound() {
+    const now = Date.now();
+    if (now - lastFailureSoundAt < 1500) {
+      return;
+    }
+
+    lastFailureSoundAt = now;
+    onAuthFailure?.();
+  }
 
   function setLockStatus(message, tone = "default") {
     elements.faceLockStatus.textContent = message;
@@ -130,6 +141,7 @@ export function createFaceLockFeature(elements, options) {
     const code = elements.backupCodeInput.value.trim();
     if (!code) {
       setLockStatus("Enter access code.", "warn");
+      triggerFailureSound();
       return;
     }
 
@@ -153,10 +165,12 @@ export function createFaceLockFeature(elements, options) {
         finalizeVerification();
         setLockStatus(result.message || "Invalid access code", "warn");
         elements.denialOverlay.classList.remove("hidden");
+        triggerFailureSound();
       }
     } catch (error) {
       finalizeVerification();
       setLockStatus(`Code verification error: ${error.message}`, "warn");
+      triggerFailureSound();
     }
   }
 
@@ -180,6 +194,7 @@ export function createFaceLockFeature(elements, options) {
           consecutiveMatches = 0;
           elements.denialOverlay.classList.remove("hidden");
           setLockStatus("Show exactly one face to continue.", "warn");
+          triggerFailureSound();
           return;
         }
 
@@ -203,11 +218,13 @@ export function createFaceLockFeature(elements, options) {
           consecutiveMatches = 0;
           elements.denialOverlay.classList.remove("hidden");
           setLockStatus("Face not recognized. Use backup code.", "warn");
+          triggerFailureSound();
         }
       } catch {
         consecutiveMatches = 0;
         elements.denialOverlay.classList.remove("hidden");
         setLockStatus("Camera scan error. Try again.", "warn");
+        triggerFailureSound();
       } finally {
         isCheckingFrame = false;
       }

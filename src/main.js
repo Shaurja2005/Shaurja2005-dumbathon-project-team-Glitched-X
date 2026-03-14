@@ -10,6 +10,16 @@ const BACKEND_BASE_URL = "http://127.0.0.1:8000";
 let isPredictionInFlight = false;
 let memeDialogTimer = null;
 
+const sfx = {
+  authFail: new Audio("audio/fahhhhh.mp3"),
+  meme: new Audio("audio/fart.mp3"),
+};
+
+Object.values(sfx).forEach((audio) => {
+  audio.preload = "auto";
+  audio.volume = 0.9;
+});
+
 const elements = {
   unlockBtn: document.getElementById("unlockBtn"),
   actionButtons: Array.from(document.querySelectorAll(".action-btn")),
@@ -191,6 +201,16 @@ function getPatientPayload() {
   return payload;
 }
 
+function playSfx(key) {
+  const audio = sfx[key];
+  if (!audio) {
+    return;
+  }
+
+  audio.currentTime = 0;
+  void audio.play().catch(() => {});
+}
+
 function showMemeDialog(imagePath, message = MEME_MESSAGE) {
   if (!elements.memeModal || !elements.memeImage || !elements.memeText) {
     return;
@@ -205,6 +225,7 @@ function showMemeDialog(imagePath, message = MEME_MESSAGE) {
   elements.memeImage.src = imagePath;
   elements.memeImage.alt = message;
   elements.memeModal.classList.remove("hidden");
+  playSfx("meme");
 
   memeDialogTimer = setTimeout(() => {
     hideMemeDialog();
@@ -382,6 +403,9 @@ const faceLockFeature = createFaceLockFeature(elements, {
   backendBaseUrl: BACKEND_BASE_URL,
   onUnlock: () => {
     unlockFeature.startUnlockFlow();
+  },
+  onAuthFailure: () => {
+    playSfx("authFail");
   },
 });
 
