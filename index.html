@@ -5,8 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Ragebait CAPTCHA Demo</title>
     <link rel="stylesheet" href="src/styles/main.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Bangers&display=swap"
+    />
+    <script defer src="face-lock-project/face-api.min.js"></script>
   </head>
-  <body>
+  <body class="locked">
     <svg width="0" height="0" style="position: absolute">
       <symbol id="icon-face" viewBox="0 0 24 24">
         <path
@@ -97,9 +106,39 @@
       </symbol>
     </svg>
 
-    <main class="app-shell">
+    <div id="siteLock" class="overlay lock-overlay" aria-live="polite">
+      <section class="modal lock-modal">
+        <h2 id="faceLockHeading">System Authentication</h2>
+        <p id="faceLockStatus" class="subtext">Loading biometric models...</p>
+        <div id="cameraFrame" class="camera-frame">
+          <video id="webcam" autoplay muted playsinline></video>
+          <div id="denialOverlay" class="denial-overlay hidden">
+            <p class="tiny">Face match failed. Enter fallback access code.</p>
+            <input
+              id="backupCodeInput"
+              type="password"
+              placeholder="Access code"
+            />
+            <button
+              id="backupCodeBtn"
+              class="icon-btn strong"
+              type="button"
+              title="Verify Access Code"
+              aria-label="Verify Access Code"
+            >
+              <i class="bi bi-check2-circle" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <main id="appContent" class="app-shell">
       <section class="card">
-        <h1>Verification Console</h1>
+        <h1 class="console-title">
+          <i class="bi bi-shield-lock-fill" aria-hidden="true"></i>
+          Verification Console
+        </h1>
         <p class="subtext">
           Complete face unlock, solve the custom challenge, then trigger
           actions.
@@ -113,7 +152,7 @@
             title="Face Unlock"
             aria-label="Face Unlock"
           >
-            <svg aria-hidden="true"><use href="#icon-face"></use></svg>
+            <i class="bi bi-person-bounding-box" aria-hidden="true"></i>
           </button>
         </div>
 
@@ -125,7 +164,7 @@
             title="Submit"
             aria-label="Submit"
           >
-            <svg aria-hidden="true"><use href="#icon-send"></use></svg>
+            <i class="bi bi-send-fill" aria-hidden="true"></i>
           </button>
           <button
             class="icon-btn action-btn"
@@ -134,7 +173,7 @@
             title="Navigate"
             aria-label="Navigate"
           >
-            <svg aria-hidden="true"><use href="#icon-nav"></use></svg>
+            <i class="bi bi-sign-turn-right-fill" aria-hidden="true"></i>
           </button>
           <button
             class="icon-btn action-btn"
@@ -143,7 +182,7 @@
             title="Purchase"
             aria-label="Purchase"
           >
-            <svg aria-hidden="true"><use href="#icon-cart"></use></svg>
+            <i class="bi bi-cart-check-fill" aria-hidden="true"></i>
           </button>
           <button
             class="icon-btn action-btn"
@@ -152,44 +191,89 @@
             title="Save"
             aria-label="Save"
           >
-            <svg aria-hidden="true"><use href="#icon-save"></use></svg>
+            <i class="bi bi-cloud-arrow-down-fill" aria-hidden="true"></i>
           </button>
         </div>
 
         <h2>Patient Vitals</h2>
         <div class="vitals-grid">
-          <input id="patientName" type="text" placeholder="Name" />
-          <input id="patientAge" type="number" placeholder="Age" step="0.1" />
-          <input id="patientGender" type="text" placeholder="Gender" />
+          <input
+            id="patientName"
+            type="text"
+            placeholder="Name"
+            minlength="1"
+            maxlength="120"
+            required
+          />
+          <input
+            id="patientAge"
+            type="number"
+            placeholder="Age"
+            step="1"
+            min="0.1"
+            max="130"
+            required
+          />
+          <select id="patientGender" aria-label="Gender" required>
+            <option value="" selected disabled>Select Gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+            <option value="non-binary">Non-binary</option>
+          </select>
           <input
             id="patientWeight"
             type="number"
             placeholder="Weight_kg"
-            step="0.1"
+            step="1"
+            min="0.1"
+            max="500"
+            required
           />
           <input
             id="patientHeight"
             type="number"
             placeholder="Height_cm"
-            step="0.1"
+            step="1"
+            min="0.1"
+            max="300"
+            required
           />
           <input
             id="patientRadiation"
             type="number"
             placeholder="radiation_dose_mSv"
-            step="0.1"
+            step="1"
+            min="0"
+            max="20000"
+            required
           />
           <input
             id="patientHours"
             type="number"
             placeholder="hours_since_exposure"
-            step="0.1"
+            step="1"
+            min="0"
+            max="20000"
+            required
           />
-          <input id="patientDiagnosis" type="text" placeholder="diagnosis" />
+          <select id="patientDiagnosis" aria-label="Diagnosis" required>
+            <option value="" selected disabled>Select diagnosis</option>
+            <option value="burn">Burn</option>
+            <option value="fracture">Fracture</option>
+            <option value="radiation_sickness">Radiation sickness</option>
+            <option value="dehydration">Dehydration</option>
+            <option value="infection">Infection</option>
+            <option value="trauma">Trauma</option>
+          </select>
         </div>
         <p class="tiny">
           Use the submit icon to request backend prediction after CAPTCHA.
         </p>
+        <div id="predictingState" class="predicting hidden" aria-live="polite">
+          <span class="hourglass-icon" aria-hidden="true">⏳</span>
+          <span>Model is predicting...</span>
+        </div>
         <div class="result-row">
           <p id="survivorHash" class="status">Survivor_ID_Hashed: --</p>
           <p id="calorieResult" class="status">caloric_need_24hr: --</p>
@@ -217,7 +301,7 @@
             title="Reset Puzzle"
             aria-label="Reset Puzzle"
           >
-            <svg aria-hidden="true"><use href="#icon-refresh"></use></svg>
+            <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
           </button>
           <button
             id="captchaVerify"
@@ -226,7 +310,7 @@
             title="Verify"
             aria-label="Verify"
           >
-            <svg aria-hidden="true"><use href="#icon-check"></use></svg>
+            <i class="bi bi-patch-check-fill" aria-hidden="true"></i>
           </button>
         </div>
         <p id="captchaStatus" class="status"></p>
@@ -236,9 +320,10 @@
     <div id="interruptModal" class="overlay hidden" aria-live="assertive">
       <section class="modal warn">
         <div class="interrupt-head">
-          <svg class="alert-icon" aria-hidden="true">
-            <use href="#icon-alert"></use>
-          </svg>
+          <i
+            class="bi bi-exclamation-triangle-fill alert-icon"
+            aria-hidden="true"
+          ></i>
           <h2 id="interruptTitle">System Message</h2>
         </div>
         <p id="interruptBody" class="subtext"></p>
@@ -250,7 +335,25 @@
             title="Dismiss"
             aria-label="Dismiss"
           >
-            <svg aria-hidden="true"><use href="#icon-close"></use></svg>
+            <i class="bi bi-x-lg" aria-hidden="true"></i>
+          </button>
+        </div>
+      </section>
+    </div>
+
+    <div id="memeModal" class="overlay hidden" aria-live="polite">
+      <section class="modal meme-modal">
+        <p id="memeText" class="meme-text">this is what you look like</p>
+        <img id="memeImage" class="meme-image" alt="Meme preview" />
+        <div class="toolbar meme-toolbar">
+          <button
+            id="memeClose"
+            class="icon-btn strong"
+            type="button"
+            title="Close"
+            aria-label="Close"
+          >
+            <i class="bi bi-x-lg" aria-hidden="true"></i>
           </button>
         </div>
       </section>
